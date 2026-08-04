@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/rahmannugar/proxify/config"
+	"github.com/rahmannugar/proxify/proxy"
 	"github.com/rahmannugar/proxify/server"
 )
 
@@ -25,8 +26,13 @@ func main() {
 		log.Fatalf("failed to load configuration: %v", err)
 	}
 
-	srv := server.New(cfg)
+	proxy, err := proxy.New(cfg)
 
+	if err != nil {
+		log.Fatalf("failed to create proxy: %v", err)
+	}
+
+	srv := server.New(cfg, proxy)
 	log.Printf("Starting Proxify on :%d...", cfg.Server.Port)
 
 	if err := srv.Start(); err != nil {

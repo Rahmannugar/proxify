@@ -14,10 +14,11 @@ type Server struct {
 }
 
 // New creates a new HTTP server.
-func New(cfg *config.Config) *Server {
+func New(cfg *config.Config, handler http.Handler) *Server {
 	return &Server{
 		httpServer: &http.Server{
-			Addr: fmt.Sprintf(":%d", cfg.Server.Port),
+			Addr:    fmt.Sprintf(":%d", cfg.Server.Port),
+			Handler: handler,
 		},
 	}
 }
