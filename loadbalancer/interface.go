@@ -1,8 +1,8 @@
 package loadbalancer
 
-import "github.com/rahmannugar/proxify/config"
+import "github.com/rahmannugar/proxify/upstream"
 
 // LoadBalancer selects an upstream to receive the next request.
 type LoadBalancer interface {
-	Next() config.Upstream
+	Next() *upstream.Upstream
 }

@@ -2,8 +2,6 @@ package proxy
 
 import (
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 
 	"github.com/rahmannugar/proxify/loadbalancer"
 )
@@ -24,18 +22,5 @@ func New(lb loadbalancer.LoadBalancer) *Proxy {
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	upstream := p.loadBalancer.Next()
 
-	target, err := url.Parse(upstream.URL)
-	if err != nil {
-		http.Error(
-			w,
-			"failed to resolve upstream",
-			http.StatusInternalServerError,
-		)
-
-		return
-	}
-
-	reverseProxy := httputil.NewSingleHostReverseProxy(target)
-
-	reverseProxy.ServeHTTP(w, r)
+	upstream.ReverseProxy.ServeHTTP(w, r)
 }

@@ -29,7 +29,10 @@ func main() {
 	}
 
 	//init registry
-	registry := registry.New(cfg.Upstreams)
+	registry, err := registry.New(cfg.Upstreams)
+	if err != nil {
+		log.Fatalf("failed to create registry: %v", err)
+	}
 
 	//init load balancer
 	loadBalancer := loadbalancer.NewRoundRobin(registry)

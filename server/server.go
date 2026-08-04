@@ -7,8 +7,7 @@ import (
 	"github.com/rahmannugar/proxify/config"
 )
 
-// Server represents the HTTP server that accepts incoming
-// client requests.
+// Server represents the HTTP server that accepts incoming client requests.
 type Server struct {
 	httpServer *http.Server
 }

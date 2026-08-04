@@ -18,7 +18,10 @@ func TestRegistry_List_ReturnsConfiguredUpstreams(t *testing.T) {
 		},
 	}
 
-	registry := New(upstreams)
+	registry, err := New(upstreams)
+	if err != nil {
+		t.Fatalf("expected registry creation to succeed: %v", err)
+	}
 
 	got := registry.List()
 
@@ -31,11 +34,19 @@ func TestRegistry_List_ReturnsConfiguredUpstreams(t *testing.T) {
 	}
 
 	for i := range upstreams {
-		if got[i] != upstreams[i] {
+		if got[i].ID != upstreams[i].ID {
 			t.Fatalf(
-				"expected upstream %v, got %v",
-				upstreams[i],
-				got[i],
+				"expected upstream ID %q, got %q",
+				upstreams[i].ID,
+				got[i].ID,
+			)
+		}
+
+		if got[i].URL != upstreams[i].URL {
+			t.Fatalf(
+				"expected upstream URL %q, got %q",
+				upstreams[i].URL,
+				got[i].URL,
 			)
 		}
 	}
