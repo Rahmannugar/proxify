@@ -1,6 +1,8 @@
 package loadbalancer
 
 import (
+	"sync"
+
 	"github.com/rahmannugar/proxify/config"
 	"github.com/rahmannugar/proxify/registry"
 )
@@ -8,6 +10,7 @@ import (
 // RoundRobin distributes requests across upstreams.
 type RoundRobin struct {
 	registry *registry.Registry
+	mu       sync.Mutex
 	index    int
 }
 
@@ -18,8 +21,11 @@ func NewRoundRobin(registry *registry.Registry) *RoundRobin {
 	}
 }
 
-// Next returns the next upstream.
+// Next returns the next upstream in the rotation.
 func (r *RoundRobin) Next() config.Upstream {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	
 	upstreams := r.registry.List()
 
 	upstream := upstreams[r.index]
