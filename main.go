@@ -5,7 +5,9 @@ import (
 	"log"
 
 	"github.com/rahmannugar/proxify/config"
+	"github.com/rahmannugar/proxify/loadbalancer"
 	"github.com/rahmannugar/proxify/proxy"
+	"github.com/rahmannugar/proxify/registry"
 	"github.com/rahmannugar/proxify/server"
 )
 
@@ -26,12 +28,16 @@ func main() {
 		log.Fatalf("failed to load configuration: %v", err)
 	}
 
-	proxy, err := proxy.New(cfg)
+	//init registry
+	registry := registry.New(cfg.Upstreams)
 
-	if err != nil {
-		log.Fatalf("failed to create proxy: %v", err)
-	}
+	//init load balancer
+	loadBalancer := loadbalancer.NewRoundRobin(registry)
 
+	//init proxy
+	proxy := proxy.New(loadBalancer)
+
+	//init server
 	srv := server.New(cfg, proxy)
 	log.Printf("Starting Proxify on :%d...", cfg.Server.Port)
 

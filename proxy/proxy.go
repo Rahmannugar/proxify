@@ -5,29 +5,37 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/rahmannugar/proxify/config"
+	"github.com/rahmannugar/proxify/loadbalancer"
 )
 
-// Proxy forwards incoming HTTP requests to an upstream service.
+// Proxy forwards incoming HTTP requests to upstream services.
 type Proxy struct {
-	reverseProxy *httputil.ReverseProxy
+	loadBalancer loadbalancer.LoadBalancer
 }
 
 // New creates a new reverse proxy.
-//
-// For now, all requests are forwarded to the first configured upstream.
-func New(cfg *config.Config) (*Proxy, error) {
-	target, err := url.Parse(cfg.Upstreams[0].URL)
-	if err != nil {
-		return nil, err
-	}
-
+func New(lb loadbalancer.LoadBalancer) *Proxy {
 	return &Proxy{
-		reverseProxy: httputil.NewSingleHostReverseProxy(target),
-	}, nil
+		loadBalancer: lb,
+	}
 }
 
-// ServeHTTP forwards the incoming request to the configured upstream.
+// ServeHTTP forwards the incoming request to the selected upstream.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	p.reverseProxy.ServeHTTP(w, r)
+	upstream := p.loadBalancer.Next()
+
+	target, err := url.Parse(upstream.URL)
+	if err != nil {
+		http.Error(
+			w,
+			"failed to resolve upstream",
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+	reverseProxy := httputil.NewSingleHostReverseProxy(target)
+
+	reverseProxy.ServeHTTP(w, r)
 }
