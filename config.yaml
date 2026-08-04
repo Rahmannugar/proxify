@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+loadBalancer:
+  strategy: round-robin
+
+upstreams:
+  - id: api-1
+    url: http://localhost:9001
+
+  - id: api-2
+    url: http://localhost:9002
