@@ -10,6 +10,7 @@ import (
 	"github.com/rahmannugar/proxify/loadbalancer"
 	"github.com/rahmannugar/proxify/middleware"
 	"github.com/rahmannugar/proxify/proxy"
+	"github.com/rahmannugar/proxify/ratelimiter"
 	"github.com/rahmannugar/proxify/registry"
 	"github.com/rahmannugar/proxify/server"
 )
@@ -56,8 +57,18 @@ func main() {
 	//init proxy
 	proxy := proxy.New(loadBalancer)
 
+	// init rate limiter
+	limiter := ratelimiter.New(
+		cfg.RateLimit.RequestsPerSecond,
+		cfg.RateLimit.Burst,
+	)
+
 	//init middleware
-	handler := middleware.Logging(proxy)
+	handler := middleware.Logging(
+		middleware.RateLimit(
+			limiter,
+			proxy,
+		))
 
 	//init server
 	srv := server.New(cfg, handler)

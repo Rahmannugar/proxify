@@ -5,17 +5,19 @@ import (
 	"time"
 )
 
-// LoadBalancingStrategy represents the algorithm used to distribute
-// incoming requests across the configured upstreams.
+/*
+LoadBalancingStrategy represents the algorithm used to distribute
+incoming requests across the configured upstreams.
+*/
 type LoadBalancingStrategy string
 
 const (
-	// RoundRobin distributes requests evenly by cycling through
-	// all healthy upstreams.
+	/* RoundRobin distributes requests evenly by cycling through
+	all healthy upstreams. */
 	RoundRobin LoadBalancingStrategy = "round-robin"
 
-	// LeastOutstanding distributes requests to the upstream
-	// with the fewest active requests.
+	/* LeastOutstanding distributes requests to the upstream
+	with the fewest active requests. */
 	LeastOutstanding LoadBalancingStrategy = "least-outstanding"
 )
 
@@ -34,6 +36,12 @@ const (
 
 	// DefaultExpectedHealthStatus is the expected HTTP status code returned by a healthy upstream.
 	DefaultExpectedHealthStatus = http.StatusOK
+
+	// DefaultRequestsPerSecond is the default sustained request rate.
+	DefaultRequestsPerSecond = 10
+
+	// DefaultBurst is the default maximum burst size.
+	DefaultBurst = 20
 )
 
 // Config represents the root application configuration.
@@ -41,6 +49,7 @@ type Config struct {
 	Server       ServerConfig       `yaml:"server"`
 	LoadBalancer LoadBalancerConfig `yaml:"loadBalancer"`
 	Health       HealthConfig       `yaml:"health"`
+	RateLimit    RateLimitConfig    `yaml:"rateLimit"`
 	Upstreams    []Upstream         `yaml:"upstreams"`
 }
 
@@ -49,8 +58,10 @@ type ServerConfig struct {
 	Port int `yaml:"port"`
 }
 
-// LoadBalancerConfig defines how requests are distributed
-// across upstreams.
+/*
+LoadBalancerConfig defines how requests are distributed
+across upstreams.
+*/
 type LoadBalancerConfig struct {
 	Strategy LoadBalancingStrategy `yaml:"strategy"`
 }
@@ -62,6 +73,12 @@ type HealthConfig struct {
 	Timeout        time.Duration `yaml:"timeout"`
 	Retries        int           `yaml:"retries"`
 	ExpectedStatus int           `yaml:"expectedStatus"`
+}
+
+// RateLimitConfig defines the proxy's rate limiting configuration.
+type RateLimitConfig struct {
+	RequestsPerSecond int `yaml:"requestsPerSecond"`
+	Burst             int `yaml:"burst"`
 }
 
 // Upstream represents a single upstream service.
