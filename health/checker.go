@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/rahmannugar/proxify/registry"
+	"github.com/rahmannugar/proxify/upstream"
 )
 
 // Checker periodically verifies the health of upstream services.
@@ -53,30 +54,35 @@ func (c *Checker) Start(ctx context.Context) {
 	}
 }
 
-// check performs a single health check against every upstream.
+// check performs a health check against every configured upstream.
 func (c *Checker) check() {
 	for _, upstream := range c.registry.List() {
-		resp, err := c.client.Get(upstream.URL + c.endpoint)
-		if err != nil {
-			upstream.SetHealthy(false)
+		c.checkUpstream(upstream)
+	}
+}
 
-			log.Printf(
-				"Health check: %s healthy=%t",
-				upstream.ID,
-				upstream.IsHealthy(),
-			)
-
-			continue
-		}
-
-		resp.Body.Close()
-
-		upstream.SetHealthy(resp.StatusCode == c.expectedStatus)
+// checkUpstream performs a health check against a single upstream.
+func (c *Checker) checkUpstream(upstream *upstream.Upstream) {
+	resp, err := c.client.Get(upstream.URL + c.endpoint)
+	if err != nil {
+		upstream.SetHealthy(false)
 
 		log.Printf(
 			"Health check: %s healthy=%t",
 			upstream.ID,
 			upstream.IsHealthy(),
 		)
+
+		return
 	}
+
+	defer resp.Body.Close()
+
+	upstream.SetHealthy(resp.StatusCode == c.expectedStatus)
+
+	log.Printf(
+		"Health check: %s healthy=%t",
+		upstream.ID,
+		upstream.IsHealthy(),
+	)
 }
