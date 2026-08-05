@@ -2,6 +2,7 @@ package health
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -58,11 +59,24 @@ func (c *Checker) check() {
 		resp, err := c.client.Get(upstream.URL + c.endpoint)
 		if err != nil {
 			upstream.SetHealthy(false)
+
+			log.Printf(
+				"Health check: %s healthy=%t",
+				upstream.ID,
+				upstream.IsHealthy(),
+			)
+
 			continue
 		}
 
 		resp.Body.Close()
 
 		upstream.SetHealthy(resp.StatusCode == c.expectedStatus)
+
+		log.Printf(
+			"Health check: %s healthy=%t",
+			upstream.ID,
+			upstream.IsHealthy(),
+		)
 	}
 }

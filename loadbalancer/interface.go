@@ -4,5 +4,5 @@ import "github.com/rahmannugar/proxify/upstream"
 
 // LoadBalancer selects an upstream to receive the next request.
 type LoadBalancer interface {
-	Next() *upstream.Upstream
+	Next() (*upstream.Upstream, error)
 }

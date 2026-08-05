@@ -20,7 +20,16 @@ func New(lb loadbalancer.LoadBalancer) *Proxy {
 
 // ServeHTTP forwards the incoming request to the selected upstream.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	upstream := p.loadBalancer.Next()
+	upstream, err := p.loadBalancer.Next()
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusServiceUnavailable,
+		)
+
+		return
+	}
 
 	upstream.ReverseProxy.ServeHTTP(w, r)
 }

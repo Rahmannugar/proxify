@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
@@ -43,7 +44,10 @@ func main() {
 		cfg.Health.Timeout,
 		cfg.Health.ExpectedStatus,
 	)
-	_ = healthChecker
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go healthChecker.Start(ctx)
 
 	//init load balancer
 	loadBalancer := loadbalancer.NewRoundRobin(registry)

@@ -21,16 +21,22 @@ func NewRoundRobin(registry *registry.Registry) *RoundRobin {
 	}
 }
 
-// Next returns the next upstream in the rotation.
-func (r *RoundRobin) Next() *upstream.Upstream {
+// Next returns the next healthy upstream in the rotation.
+func (r *RoundRobin) Next() (*upstream.Upstream, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	upstreams := r.registry.List()
 
-	upstream := upstreams[r.index]
+	for i := 0; i < len(upstreams); i++ {
+		upstream := upstreams[r.index]
 
-	r.index = (r.index + 1) % len(upstreams)
+		r.index = (r.index + 1) % len(upstreams)
 
-	return upstream
+		if upstream.IsHealthy() {
+			return upstream, nil
+		}
+	}
+
+	return nil, ErrNoHealthyUpstreams
 }
