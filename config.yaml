@@ -4,6 +4,13 @@ server:
 loadBalancer:
   strategy: round-robin
 
+health:
+  endpoint: /health
+  interval: 10s
+  timeout: 2s
+  retries: 3
+  expectedStatus: 200
+
 upstreams:
   - id: api-1
     url: http://localhost:9001

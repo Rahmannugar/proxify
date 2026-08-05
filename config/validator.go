@@ -5,8 +5,7 @@ import (
 	"net/url"
 )
 
-// Validate ensures the application configuration is valid
-// before the proxy starts.
+// Validate ensures the application configuration is valid before the proxy starts.
 func Validate(cfg *Config) error {
 	if cfg.Server.Port <= 0 || cfg.Server.Port > 65535 {
 		return fmt.Errorf("invalid server port: %d", cfg.Server.Port)
@@ -23,6 +22,26 @@ func Validate(cfg *Config) error {
 			"unsupported load balancing strategy: %q",
 			cfg.LoadBalancer.Strategy,
 		)
+	}
+
+	if cfg.Health.Endpoint == "" {
+		cfg.Health.Endpoint = DefaultHealthEndpoint
+	}
+
+	if cfg.Health.Interval <= 0 {
+		cfg.Health.Interval = DefaultHealthInterval
+	}
+
+	if cfg.Health.Timeout <= 0 {
+		cfg.Health.Timeout = DefaultHealthTimeout
+	}
+
+	if cfg.Health.Retries <= 0 {
+		cfg.Health.Retries = DefaultHealthRetries
+	}
+
+	if cfg.Health.ExpectedStatus == 0 {
+		cfg.Health.ExpectedStatus = DefaultExpectedHealthStatus
 	}
 
 	seen := make(map[string]struct{})

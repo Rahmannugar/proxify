@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/rahmannugar/proxify/config"
+	"github.com/rahmannugar/proxify/health"
 	"github.com/rahmannugar/proxify/loadbalancer"
 	"github.com/rahmannugar/proxify/proxy"
 	"github.com/rahmannugar/proxify/registry"
@@ -33,6 +34,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create registry: %v", err)
 	}
+
+	//init health checker
+	healthChecker := health.New(
+		registry,
+		cfg.Health.Endpoint,
+		cfg.Health.Interval,
+		cfg.Health.Timeout,
+		cfg.Health.ExpectedStatus,
+	)
+	_ = healthChecker
 
 	//init load balancer
 	loadBalancer := loadbalancer.NewRoundRobin(registry)
