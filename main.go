@@ -8,6 +8,7 @@ import (
 	"github.com/rahmannugar/proxify/config"
 	"github.com/rahmannugar/proxify/health"
 	"github.com/rahmannugar/proxify/loadbalancer"
+	"github.com/rahmannugar/proxify/middleware"
 	"github.com/rahmannugar/proxify/proxy"
 	"github.com/rahmannugar/proxify/registry"
 	"github.com/rahmannugar/proxify/server"
@@ -55,8 +56,11 @@ func main() {
 	//init proxy
 	proxy := proxy.New(loadBalancer)
 
+	//init middleware
+	handler := middleware.Logging(proxy)
+
 	//init server
-	srv := server.New(cfg, proxy)
+	srv := server.New(cfg, handler)
 	log.Printf("Starting Proxify on :%d...", cfg.Server.Port)
 
 	if err := srv.Start(); err != nil {

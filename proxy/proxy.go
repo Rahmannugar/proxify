@@ -6,6 +6,11 @@ import (
 	"github.com/rahmannugar/proxify/loadbalancer"
 )
 
+// upstreamRecorder records the upstream that handled a request.
+type upstreamRecorder interface {
+	SetUpstream(string)
+}
+
 // Proxy forwards incoming HTTP requests to upstream services.
 type Proxy struct {
 	loadBalancer loadbalancer.LoadBalancer
@@ -29,6 +34,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		)
 
 		return
+	}
+	if recorder, ok := w.(upstreamRecorder); ok {
+		recorder.SetUpstream(upstream.ID)
 	}
 
 	upstream.ReverseProxy.ServeHTTP(w, r)
