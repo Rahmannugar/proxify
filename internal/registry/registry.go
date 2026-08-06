@@ -16,12 +16,17 @@ type Registry struct {
 // New creates a new upstream registry.
 func New(
 	configUpstreams []config.Upstream,
+	cbCfg config.CircuitBreakerConfig,
 	transport http.RoundTripper,
 ) (*Registry, error) {
 	upstreams := make([]*upstream.Upstream, 0, len(configUpstreams))
 
 	for _, cfg := range configUpstreams {
-		upstream, err := upstream.New(cfg, transport)
+		upstream, err := upstream.New(
+			cfg,
+			cbCfg,
+			transport,
+		)
 		if err != nil {
 			return nil, fmt.Errorf(
 				"create upstream %q: %w",

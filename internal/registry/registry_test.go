@@ -2,6 +2,7 @@ package registry
 
 import (
 	"testing"
+	"time"
 
 	"github.com/rahmannugar/proxify/internal/config"
 	"github.com/rahmannugar/proxify/internal/transport"
@@ -21,6 +22,11 @@ func TestRegistry_List_ReturnsConfiguredUpstreams(t *testing.T) {
 
 	registry, err := New(
 		upstreams,
+		config.CircuitBreakerConfig{
+			FailureThreshold: 5,
+			RecoveryTimeout:  30 * time.Second,
+			SuccessThreshold: 2,
+		},
 		transport.New(config.TransportConfig{}),
 	)
 	if err != nil {
@@ -52,6 +58,10 @@ func TestRegistry_List_ReturnsConfiguredUpstreams(t *testing.T) {
 				upstreams[i].URL,
 				got[i].URL,
 			)
+		}
+
+		if got[i].Breaker == nil {
+			t.Fatal("expected circuit breaker to be initialized")
 		}
 	}
 }

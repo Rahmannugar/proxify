@@ -41,6 +41,7 @@ func main() {
 	// Init registry.
 	registry, err := registry.New(
 		cfg.Upstreams,
+		cfg.CircuitBreaker,
 		sharedTransport,
 	)
 	if err != nil {

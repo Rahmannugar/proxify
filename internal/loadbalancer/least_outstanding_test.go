@@ -5,6 +5,7 @@ import (
 
 	"github.com/rahmannugar/proxify/internal/config"
 	"github.com/rahmannugar/proxify/internal/registry"
+	"github.com/rahmannugar/proxify/internal/testutil"
 	"github.com/rahmannugar/proxify/internal/transport"
 )
 
@@ -24,6 +25,7 @@ func TestLeastOutstanding_Next_ReturnsLeastBusyUpstream(t *testing.T) {
 				URL: "http://localhost:9003",
 			},
 		},
+		testutil.CircuitBreakerConfig(),
 		transport.New(config.TransportConfig{}),
 	)
 	if err != nil {
@@ -61,6 +63,7 @@ func TestLeastOutstanding_Next_SkipsUnhealthyUpstreams(t *testing.T) {
 				URL: "http://localhost:9002",
 			},
 		},
+		testutil.CircuitBreakerConfig(),
 		transport.New(config.TransportConfig{}),
 	)
 	if err != nil {
@@ -94,6 +97,7 @@ func TestLeastOutstanding_Next_ReturnsErrorWhenNoHealthyUpstreams(t *testing.T) 
 				URL: "http://localhost:9002",
 			},
 		},
+		testutil.CircuitBreakerConfig(),
 		transport.New(config.TransportConfig{}),
 	)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/rahmannugar/proxify/internal/circuitbreaker"
 	"github.com/rahmannugar/proxify/internal/config"
 )
 
@@ -17,6 +18,7 @@ type Upstream struct {
 	ID             string
 	URL            string
 	ReverseProxy   *httputil.ReverseProxy
+	Breaker        *circuitbreaker.Breaker
 	healthy        bool
 	activeRequests atomic.Int64
 }
@@ -55,6 +57,7 @@ func (u *Upstream) ActiveRequests() int64 {
 // New creates a runtime upstream from configuration.
 func New(
 	cfg config.Upstream,
+	cbCfg config.CircuitBreakerConfig,
 	transport http.RoundTripper,
 ) (*Upstream, error) {
 	target, err := url.Parse(cfg.URL)
@@ -69,6 +72,11 @@ func New(
 		ID:           cfg.ID,
 		URL:          cfg.URL,
 		ReverseProxy: proxy,
-		healthy:      true,
+		Breaker: circuitbreaker.New(
+			cbCfg.FailureThreshold,
+			cbCfg.SuccessThreshold,
+			cbCfg.RecoveryTimeout,
+		),
+		healthy: true,
 	}, nil
 }

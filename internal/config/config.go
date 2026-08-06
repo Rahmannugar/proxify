@@ -42,17 +42,30 @@ const (
 
 	// DefaultBurst is the default maximum burst size.
 	DefaultBurst = 20
+
+	// DefaultCircuitBreakerFailureThreshold is the number of consecutive
+	// failures before the circuit breaker opens.
+	DefaultCircuitBreakerFailureThreshold = 5
+
+	// DefaultCircuitBreakerRecoveryTimeout is the amount of time the breaker
+	// remains open before allowing another request.
+	DefaultCircuitBreakerRecoveryTimeout = 30 * time.Second
+
+	// DefaultCircuitBreakerSuccessThreshold is the number of successful
+	// requests required to close a half-open circuit breaker.
+	DefaultCircuitBreakerSuccessThreshold = 2
 )
 
 // Config represents the root application configuration.
 type Config struct {
-	Server       ServerConfig       `yaml:"server"`
-	LoadBalancer LoadBalancerConfig `yaml:"loadBalancer"`
-	Health       HealthConfig       `yaml:"health"`
-	Timeouts     TimeoutsConfig     `yaml:"timeouts"`
-	Transport    TransportConfig    `yaml:"transport"`
-	RateLimit    RateLimitConfig    `yaml:"rateLimit"`
-	Upstreams    []Upstream         `yaml:"upstreams"`
+	Server         ServerConfig         `yaml:"server"`
+	LoadBalancer   LoadBalancerConfig   `yaml:"loadBalancer"`
+	Health         HealthConfig         `yaml:"health"`
+	Timeouts       TimeoutsConfig       `yaml:"timeouts"`
+	Transport      TransportConfig      `yaml:"transport"`
+	CircuitBreaker CircuitBreakerConfig `yaml:"circuitBreaker"`
+	RateLimit      RateLimitConfig      `yaml:"rateLimit"`
+	Upstreams      []Upstream           `yaml:"upstreams"`
 }
 
 // ServerConfig defines the proxy server configuration.
@@ -91,6 +104,13 @@ type TransportConfig struct {
 	ResponseHeader time.Duration `yaml:"responseHeader"`
 	IdleConn       time.Duration `yaml:"idleConn"`
 	TLSHandshake   time.Duration `yaml:"tlsHandshake"`
+}
+
+// CircuitBreakerConfig defines the circuit breaker configuration.
+type CircuitBreakerConfig struct {
+	FailureThreshold int           `yaml:"failureThreshold"`
+	RecoveryTimeout  time.Duration `yaml:"recoveryTimeout"`
+	SuccessThreshold int           `yaml:"successThreshold"`
 }
 
 // RateLimitConfig defines the proxy's rate limiting configuration.

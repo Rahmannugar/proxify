@@ -9,6 +9,7 @@ import (
 	"github.com/rahmannugar/proxify/internal/config"
 	"github.com/rahmannugar/proxify/internal/metrics"
 	"github.com/rahmannugar/proxify/internal/registry"
+	"github.com/rahmannugar/proxify/internal/testutil"
 	"github.com/rahmannugar/proxify/internal/transport"
 )
 
@@ -27,6 +28,7 @@ func TestChecker_CheckUpstream_Healthy(t *testing.T) {
 				URL: server.URL,
 			},
 		},
+		testutil.CircuitBreakerConfig(),
 		transport.New(config.TransportConfig{}),
 	)
 	if err != nil {
@@ -59,6 +61,7 @@ func TestChecker_CheckUpstream_Unreachable(t *testing.T) {
 				URL: "http://127.0.0.1:65535",
 			},
 		},
+		testutil.CircuitBreakerConfig(),
 		transport.New(config.TransportConfig{}),
 	)
 	if err != nil {
@@ -98,6 +101,7 @@ func TestChecker_CheckUpstream_UnexpectedStatus(t *testing.T) {
 				URL: server.URL,
 			},
 		},
+		testutil.CircuitBreakerConfig(),
 		transport.New(config.TransportConfig{}),
 	)
 	if err != nil {
