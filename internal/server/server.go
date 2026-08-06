@@ -22,11 +22,20 @@ type Server struct {
 }
 
 // New creates a new HTTP server.
-func New(cfg *config.Config, handler http.Handler) *Server {
+func New(
+	cfg *config.Config,
+	proxyHandler http.Handler,
+	metricsHandler http.Handler,
+) *Server {
+	mux := http.NewServeMux()
+
+	mux.Handle("/", proxyHandler)
+	mux.Handle("/metrics", metricsHandler)
+
 	return &Server{
 		httpServer: &http.Server{
 			Addr:    fmt.Sprintf(":%d", cfg.Server.Port),
-			Handler: handler,
+			Handler: mux,
 		},
 	}
 }

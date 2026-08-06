@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/rahmannugar/proxify/internal/config"
+	"github.com/rahmannugar/proxify/internal/exporter"
 	"github.com/rahmannugar/proxify/internal/health"
 	"github.com/rahmannugar/proxify/internal/loadbalancer"
 	"github.com/rahmannugar/proxify/internal/metrics"
@@ -41,6 +42,9 @@ func main() {
 
 	// Init metrics collector.
 	metricsCollector := metrics.New()
+
+	// Init metrics exporter.
+	metricsExporter := exporter.NewJSONMetrics(metricsCollector)
 
 	// Init health checker.
 	healthChecker := health.New(
@@ -88,7 +92,9 @@ func main() {
 	)
 
 	// Init server.
-	srv := server.New(cfg, handler)
+	srv := server.New(cfg,
+		handler,
+		metricsExporter)
 
 	log.Printf("Starting Proxify on :%d...", cfg.Server.Port)
 
