@@ -35,6 +35,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	upstream.IncrementActiveRequests()
+	defer upstream.DecrementActiveRequests()
+
 	if recorder, ok := w.(upstreamRecorder); ok {
 		recorder.SetUpstream(upstream.ID)
 	}

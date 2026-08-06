@@ -4,6 +4,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"sync"
+	"sync/atomic"
 
 	"github.com/rahmannugar/proxify/config"
 )
@@ -12,10 +13,11 @@ import (
 type Upstream struct {
 	mu sync.RWMutex
 
-	ID           string
-	URL          string
-	ReverseProxy *httputil.ReverseProxy
-	healthy      bool
+	ID             string
+	URL            string
+	ReverseProxy   *httputil.ReverseProxy
+	healthy        bool
+	activeRequests atomic.Int64
 }
 
 // IsHealthy reports whether the upstream is healthy.
@@ -32,6 +34,21 @@ func (u *Upstream) SetHealthy(healthy bool) {
 	defer u.mu.Unlock()
 
 	u.healthy = healthy
+}
+
+// IncrementActiveRequests increases the number of active requests.
+func (u *Upstream) IncrementActiveRequests() {
+	u.activeRequests.Add(1)
+}
+
+// DecrementActiveRequests decreases the number of active requests.
+func (u *Upstream) DecrementActiveRequests() {
+	u.activeRequests.Add(-1)
+}
+
+// ActiveRequests returns the number of active requests.
+func (u *Upstream) ActiveRequests() int64 {
+	return u.activeRequests.Load()
 }
 
 // New creates a runtime upstream from configuration.

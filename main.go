@@ -51,8 +51,14 @@ func main() {
 
 	go healthChecker.Start(ctx)
 
-	//init load balancer
-	loadBalancer := loadbalancer.NewRoundRobin(registry)
+	// init load balancer
+	loadBalancer, err := loadbalancer.NewLoadbalancer(
+		cfg.LoadBalancer.Strategy,
+		registry,
+	)
+	if err != nil {
+		log.Fatalf("failed to create load balancer: %v", err)
+	}
 
 	//init proxy
 	proxy := proxy.New(loadBalancer)
