@@ -1,0 +1,16 @@
+.git
+.github
+
+.vscode
+.idea
+
+bin
+dist
+coverage
+
+*.log
+
+.gitignore
+
+README.md
+ARCHITECTURE.md

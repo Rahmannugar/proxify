@@ -1,0 +1,39 @@
+services:
+  proxify:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - --config
+      - configs/docker.yaml
+    ports:
+      - "8080:8080"
+    depends_on:
+      - upstream-1
+      - upstream-2
+
+  upstream-1:
+    image: golang:1.26.5-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    command:
+      [
+        "go",
+        "run",
+        "./examples/upstream",
+        "--name",
+        "api-1",
+        "--port",
+        "9001",
+        "--delay",
+        "3s",
+      ]
+
+  upstream-2:
+    image: golang:1.26.5-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    command:
+      ["go", "run", "./examples/upstream", "--name", "api-2", "--port", "9002"]

@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+loadBalancer:
+  strategy: round-robin
+
+health:
+  endpoint: /health
+  interval: 10s
+  timeout: 2s
+  retries: 3
+  expectedStatus: 200
+
+timeouts:
+  read: 10s
+  readHeader: 5s
+  write: 30s
+  idle: 60s
+
+transport:
+  dial: 5s
+  responseHeader: 10s
+  idleConn: 90s
+  tlsHandshake: 5s
+
+rateLimit:
+  requestsPerSecond: 10
+  burst: 20
+
+upstreams:
+  - id: api-1
+    url: http://upstream-1:9001
+
+  - id: api-2
+    url: http://upstream-2:9002
