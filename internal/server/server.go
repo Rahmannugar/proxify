@@ -34,8 +34,12 @@ func New(
 
 	return &Server{
 		httpServer: &http.Server{
-			Addr:    fmt.Sprintf(":%d", cfg.Server.Port),
-			Handler: mux,
+			Addr:              fmt.Sprintf(":%d", cfg.Server.Port),
+			Handler:           mux,
+			ReadTimeout:       cfg.Timeouts.Read,
+			ReadHeaderTimeout: cfg.Timeouts.ReadHeader,
+			WriteTimeout:      cfg.Timeouts.Write,
+			IdleTimeout:       cfg.Timeouts.Idle,
 		},
 	}
 }

@@ -7,23 +7,27 @@ import (
 
 	"github.com/rahmannugar/proxify/internal/config"
 	"github.com/rahmannugar/proxify/internal/registry"
+	"github.com/rahmannugar/proxify/internal/transport"
 )
 
 func TestRoundRobin_Next_CyclesThroughUpstreams(t *testing.T) {
-	registry, err := registry.New([]config.Upstream{
-		{
-			ID:  "api-1",
-			URL: "http://localhost:9001",
+	registry, err := registry.New(
+		[]config.Upstream{
+			{
+				ID:  "api-1",
+				URL: "http://localhost:9001",
+			},
+			{
+				ID:  "api-2",
+				URL: "http://localhost:9002",
+			},
+			{
+				ID:  "api-3",
+				URL: "http://localhost:9003",
+			},
 		},
-		{
-			ID:  "api-2",
-			URL: "http://localhost:9002",
-		},
-		{
-			ID:  "api-3",
-			URL: "http://localhost:9003",
-		},
-	})
+		transport.New(config.TransportConfig{}),
+	)
 	if err != nil {
 		t.Fatalf("expected registry creation to succeed: %v", err)
 	}
@@ -46,26 +50,25 @@ func TestRoundRobin_Next_CyclesThroughUpstreams(t *testing.T) {
 		}
 
 		if upstream.ID != id {
-			t.Fatalf(
-				"expected upstream %q, got %q",
-				id,
-				upstream.ID,
-			)
+			t.Fatalf("expected upstream %q, got %q", id, upstream.ID)
 		}
 	}
 }
 
 func TestRoundRobin_Next_ConcurrentAccess(t *testing.T) {
-	registry, err := registry.New([]config.Upstream{
-		{
-			ID:  "api-1",
-			URL: "http://localhost:9001",
+	registry, err := registry.New(
+		[]config.Upstream{
+			{
+				ID:  "api-1",
+				URL: "http://localhost:9001",
+			},
+			{
+				ID:  "api-2",
+				URL: "http://localhost:9002",
+			},
 		},
-		{
-			ID:  "api-2",
-			URL: "http://localhost:9002",
-		},
-	})
+		transport.New(config.TransportConfig{}),
+	)
 	if err != nil {
 		t.Fatalf("expected registry creation to succeed: %v", err)
 	}
@@ -92,12 +95,15 @@ func TestRoundRobin_Next_ConcurrentAccess(t *testing.T) {
 }
 
 func TestRoundRobin_Next_ReturnsErrorWhenAllUpstreamsAreUnhealthy(t *testing.T) {
-	registry, err := registry.New([]config.Upstream{
-		{
-			ID:  "api-1",
-			URL: "http://localhost:9001",
+	registry, err := registry.New(
+		[]config.Upstream{
+			{
+				ID:  "api-1",
+				URL: "http://localhost:9001",
+			},
 		},
-	})
+		transport.New(config.TransportConfig{}),
+	)
 	if err != nil {
 		t.Fatalf("expected registry creation to succeed: %v", err)
 	}
@@ -110,10 +116,6 @@ func TestRoundRobin_Next_ReturnsErrorWhenAllUpstreamsAreUnhealthy(t *testing.T) 
 
 	_, err = lb.Next()
 	if !errors.Is(err, ErrNoHealthyUpstreams) {
-		t.Fatalf(
-			"expected %v, got %v",
-			ErrNoHealthyUpstreams,
-			err,
-		)
+		t.Fatalf("expected %v, got %v", ErrNoHealthyUpstreams, err)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/rahmannugar/proxify/internal/config"
+	"github.com/rahmannugar/proxify/internal/transport"
 )
 
 func TestRegistry_List_ReturnsConfiguredUpstreams(t *testing.T) {
@@ -18,7 +19,10 @@ func TestRegistry_List_ReturnsConfiguredUpstreams(t *testing.T) {
 		},
 	}
 
-	registry, err := New(upstreams)
+	registry, err := New(
+		upstreams,
+		transport.New(config.TransportConfig{}),
+	)
 	if err != nil {
 		t.Fatalf("expected registry creation to succeed: %v", err)
 	}

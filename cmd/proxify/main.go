@@ -15,6 +15,7 @@ import (
 	"github.com/rahmannugar/proxify/internal/ratelimiter"
 	"github.com/rahmannugar/proxify/internal/registry"
 	"github.com/rahmannugar/proxify/internal/server"
+	"github.com/rahmannugar/proxify/internal/transport"
 )
 
 const defaultConfigPath = "configs/round-robin.yaml"
@@ -34,8 +35,14 @@ func main() {
 		log.Fatalf("failed to load configuration: %v", err)
 	}
 
+	// Init shared transport.
+	sharedTransport := transport.New(cfg.Transport)
+
 	// Init registry.
-	registry, err := registry.New(cfg.Upstreams)
+	registry, err := registry.New(
+		cfg.Upstreams,
+		sharedTransport,
+	)
 	if err != nil {
 		log.Fatalf("failed to create registry: %v", err)
 	}
@@ -94,9 +101,11 @@ func main() {
 	)
 
 	// Init server.
-	srv := server.New(cfg,
+	srv := server.New(
+		cfg,
 		handler,
-		metricsExporter)
+		metricsExporter,
+	)
 
 	log.Printf("Starting Proxify on :%d...", cfg.Server.Port)
 

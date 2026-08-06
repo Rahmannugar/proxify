@@ -49,6 +49,8 @@ type Config struct {
 	Server       ServerConfig       `yaml:"server"`
 	LoadBalancer LoadBalancerConfig `yaml:"loadBalancer"`
 	Health       HealthConfig       `yaml:"health"`
+	Timeouts     TimeoutsConfig     `yaml:"timeouts"`
+	Transport    TransportConfig    `yaml:"transport"`
 	RateLimit    RateLimitConfig    `yaml:"rateLimit"`
 	Upstreams    []Upstream         `yaml:"upstreams"`
 }
@@ -73,6 +75,22 @@ type HealthConfig struct {
 	Timeout        time.Duration `yaml:"timeout"`
 	Retries        int           `yaml:"retries"`
 	ExpectedStatus int           `yaml:"expectedStatus"`
+}
+
+// TimeoutsConfig defines the HTTP server timeout configuration.
+type TimeoutsConfig struct {
+	Read       time.Duration `yaml:"read"`
+	ReadHeader time.Duration `yaml:"readHeader"`
+	Write      time.Duration `yaml:"write"`
+	Idle       time.Duration `yaml:"idle"`
+}
+
+// TransportConfig defines timeout settings for upstream communication.
+type TransportConfig struct {
+	Dial           time.Duration `yaml:"dial"`
+	ResponseHeader time.Duration `yaml:"responseHeader"`
+	IdleConn       time.Duration `yaml:"idleConn"`
+	TLSHandshake   time.Duration `yaml:"tlsHandshake"`
 }
 
 // RateLimitConfig defines the proxy's rate limiting configuration.

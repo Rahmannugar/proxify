@@ -1,6 +1,7 @@
 package upstream
 
 import (
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"sync"
@@ -52,16 +53,22 @@ func (u *Upstream) ActiveRequests() int64 {
 }
 
 // New creates a runtime upstream from configuration.
-func New(cfg config.Upstream) (*Upstream, error) {
+func New(
+	cfg config.Upstream,
+	transport http.RoundTripper,
+) (*Upstream, error) {
 	target, err := url.Parse(cfg.URL)
 	if err != nil {
 		return nil, err
 	}
 
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.Transport = transport
+
 	return &Upstream{
 		ID:           cfg.ID,
 		URL:          cfg.URL,
-		ReverseProxy: httputil.NewSingleHostReverseProxy(target),
+		ReverseProxy: proxy,
 		healthy:      true,
 	}, nil
 }

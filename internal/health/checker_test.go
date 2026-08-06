@@ -9,6 +9,7 @@ import (
 	"github.com/rahmannugar/proxify/internal/config"
 	"github.com/rahmannugar/proxify/internal/metrics"
 	"github.com/rahmannugar/proxify/internal/registry"
+	"github.com/rahmannugar/proxify/internal/transport"
 )
 
 func TestChecker_CheckUpstream_Healthy(t *testing.T) {
@@ -19,12 +20,15 @@ func TestChecker_CheckUpstream_Healthy(t *testing.T) {
 	)
 	defer server.Close()
 
-	registry, err := registry.New([]config.Upstream{
-		{
-			ID:  "api-1",
-			URL: server.URL,
+	registry, err := registry.New(
+		[]config.Upstream{
+			{
+				ID:  "api-1",
+				URL: server.URL,
+			},
 		},
-	})
+		transport.New(config.TransportConfig{}),
+	)
 	if err != nil {
 		t.Fatalf("expected registry creation to succeed: %v", err)
 	}
@@ -48,12 +52,15 @@ func TestChecker_CheckUpstream_Healthy(t *testing.T) {
 }
 
 func TestChecker_CheckUpstream_Unreachable(t *testing.T) {
-	registry, err := registry.New([]config.Upstream{
-		{
-			ID:  "api-1",
-			URL: "http://127.0.0.1:65535",
+	registry, err := registry.New(
+		[]config.Upstream{
+			{
+				ID:  "api-1",
+				URL: "http://127.0.0.1:65535",
+			},
 		},
-	})
+		transport.New(config.TransportConfig{}),
+	)
 	if err != nil {
 		t.Fatalf("expected registry creation to succeed: %v", err)
 	}
@@ -84,16 +91,19 @@ func TestChecker_CheckUpstream_UnexpectedStatus(t *testing.T) {
 	)
 	defer server.Close()
 
-	registry, err := registry.New([]config.Upstream{
-		{
-			ID:  "api-1",
-			URL: server.URL,
+	registry, err := registry.New(
+		[]config.Upstream{
+			{
+				ID:  "api-1",
+				URL: server.URL,
+			},
 		},
-	})
+		transport.New(config.TransportConfig{}),
+	)
 	if err != nil {
 		t.Fatalf("expected registry creation to succeed: %v", err)
 	}
-	
+
 	checker := New(
 		registry,
 		metrics.New(),
@@ -102,6 +112,7 @@ func TestChecker_CheckUpstream_UnexpectedStatus(t *testing.T) {
 		time.Second,
 		http.StatusOK,
 	)
+
 	upstream := registry.List()[0]
 
 	checker.checkUpstream(upstream)

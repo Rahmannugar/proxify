@@ -2,6 +2,7 @@ package registry
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/rahmannugar/proxify/internal/config"
 	"github.com/rahmannugar/proxify/internal/upstream"
@@ -13,11 +14,14 @@ type Registry struct {
 }
 
 // New creates a new upstream registry.
-func New(configUpstreams []config.Upstream) (*Registry, error) {
+func New(
+	configUpstreams []config.Upstream,
+	transport http.RoundTripper,
+) (*Registry, error) {
 	upstreams := make([]*upstream.Upstream, 0, len(configUpstreams))
 
 	for _, cfg := range configUpstreams {
-		upstream, err := upstream.New(cfg)
+		upstream, err := upstream.New(cfg, transport)
 		if err != nil {
 			return nil, fmt.Errorf(
 				"create upstream %q: %w",
