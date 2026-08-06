@@ -83,11 +83,13 @@ func main() {
 	)
 
 	// Init middleware.
-	handler := middleware.Logging(
-		middleware.RateLimit(
-			limiter,
-			metricsCollector,
-			proxy,
+	handler := middleware.RequestID(
+		middleware.Logging(
+			middleware.RateLimit(
+				limiter,
+				metricsCollector,
+				proxy,
+			),
 		),
 	)
 

@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/rahmannugar/proxify/internal/requestid"
 )
 
 /*
@@ -23,14 +25,16 @@ func Logging(next http.Handler) http.Handler {
 		if rw.upstreamID == "" {
 			rw.upstreamID = "-"
 		}
+		requestID := requestid.FromContext(r.Context())
 
 		log.Printf(
-			"%s %s %d %s upstream=%s",
+			"%s %s %d %s upstream=%s request_id=%s",
 			r.Method,
 			r.URL.Path,
 			rw.statusCode,
 			time.Since(start),
 			rw.upstreamID,
+			requestID,
 		)
 	})
 }
