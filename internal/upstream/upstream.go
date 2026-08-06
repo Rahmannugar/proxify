@@ -65,18 +65,40 @@ func New(
 		return nil, err
 	}
 
-	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.Transport = transport
-
-	return &Upstream{
-		ID:           cfg.ID,
-		URL:          cfg.URL,
-		ReverseProxy: proxy,
+	upstream := &Upstream{
+		ID:  cfg.ID,
+		URL: cfg.URL,
 		Breaker: circuitbreaker.New(
 			cbCfg.FailureThreshold,
 			cbCfg.SuccessThreshold,
 			cbCfg.RecoveryTimeout,
 		),
 		healthy: true,
-	}, nil
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.Transport = transport
+
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		upstream.Breaker.Success()
+		return nil
+	}
+
+	proxy.ErrorHandler = func(
+		w http.ResponseWriter,
+		r *http.Request,
+		err error,
+	) {
+		upstream.Breaker.Failure()
+
+		http.Error(
+			w,
+			"bad gateway",
+			http.StatusBadGateway,
+		)
+	}
+
+	upstream.ReverseProxy = proxy
+
+	return upstream, nil
 }

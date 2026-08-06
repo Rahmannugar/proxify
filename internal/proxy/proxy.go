@@ -42,7 +42,15 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			err.Error(),
 			http.StatusServiceUnavailable,
 		)
+		return
+	}
 
+	if !upstream.Breaker.Allow() {
+		http.Error(
+			w,
+			"upstream circuit breaker is open",
+			http.StatusServiceUnavailable,
+		)
 		return
 	}
 
