@@ -30,6 +30,26 @@ Proxify is a reverse proxy written in Go that sits between clients and upstream 
 
 ## Running Locally
 
+Start the example upstream services in separate terminals.
+
+Terminal 1:
+
+```bash
+go run ./examples/upstream \
+  --name api-1 \
+  --port 9001
+```
+
+Terminal 2:
+
+```bash
+go run ./examples/upstream \
+  --name api-2 \
+  --port 9002
+```
+
+Then start Proxify:
+
 ```bash
 go run ./cmd/proxify
 ```
@@ -42,11 +62,13 @@ go run ./cmd/proxify --config configs/least-outstanding.yaml
 
 ## Running with Docker
 
+Start the entire environment with:
+
 ```bash
 docker compose up --build
 ```
 
-The Docker environment starts:
+Docker Compose starts:
 
 - Proxify
 - Upstream API 1
