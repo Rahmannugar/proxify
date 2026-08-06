@@ -6,8 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rahmannugar/proxify/config"
-	"github.com/rahmannugar/proxify/registry"
+	"github.com/rahmannugar/proxify/internal/config"
+	"github.com/rahmannugar/proxify/internal/metrics"
+	"github.com/rahmannugar/proxify/internal/registry"
 )
 
 func TestChecker_CheckUpstream_Healthy(t *testing.T) {
@@ -30,6 +31,7 @@ func TestChecker_CheckUpstream_Healthy(t *testing.T) {
 
 	checker := New(
 		registry,
+		metrics.New(),
 		"/",
 		time.Second,
 		time.Second,
@@ -58,6 +60,7 @@ func TestChecker_CheckUpstream_Unreachable(t *testing.T) {
 
 	checker := New(
 		registry,
+		metrics.New(),
 		"/health",
 		time.Second,
 		time.Second,
@@ -90,15 +93,15 @@ func TestChecker_CheckUpstream_UnexpectedStatus(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected registry creation to succeed: %v", err)
 	}
-
+	
 	checker := New(
 		registry,
+		metrics.New(),
 		"/",
 		time.Second,
 		time.Second,
 		http.StatusOK,
 	)
-
 	upstream := registry.List()[0]
 
 	checker.checkUpstream(upstream)

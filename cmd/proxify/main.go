@@ -5,14 +5,15 @@ import (
 	"flag"
 	"log"
 
-	"github.com/rahmannugar/proxify/config"
-	"github.com/rahmannugar/proxify/health"
-	"github.com/rahmannugar/proxify/loadbalancer"
-	"github.com/rahmannugar/proxify/middleware"
-	"github.com/rahmannugar/proxify/proxy"
-	"github.com/rahmannugar/proxify/ratelimiter"
-	"github.com/rahmannugar/proxify/registry"
-	"github.com/rahmannugar/proxify/server"
+	"github.com/rahmannugar/proxify/internal/config"
+	"github.com/rahmannugar/proxify/internal/health"
+	"github.com/rahmannugar/proxify/internal/loadbalancer"
+	"github.com/rahmannugar/proxify/internal/metrics"
+	"github.com/rahmannugar/proxify/internal/middleware"
+	"github.com/rahmannugar/proxify/internal/proxy"
+	"github.com/rahmannugar/proxify/internal/ratelimiter"
+	"github.com/rahmannugar/proxify/internal/registry"
+	"github.com/rahmannugar/proxify/internal/server"
 )
 
 const defaultConfigPath = "config.yaml"
@@ -32,27 +33,32 @@ func main() {
 		log.Fatalf("failed to load configuration: %v", err)
 	}
 
-	//init registry
+	// Init registry.
 	registry, err := registry.New(cfg.Upstreams)
 	if err != nil {
 		log.Fatalf("failed to create registry: %v", err)
 	}
 
-	//init health checker
+	// Init metrics collector.
+	metricsCollector := metrics.New()
+
+	// Init health checker.
 	healthChecker := health.New(
 		registry,
+		metricsCollector,
 		cfg.Health.Endpoint,
 		cfg.Health.Interval,
 		cfg.Health.Timeout,
 		cfg.Health.ExpectedStatus,
 	)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	go healthChecker.Start(ctx)
 
-	// init load balancer
-	loadBalancer, err := loadbalancer.NewLoadbalancer(
+	// Init load balancer.
+	loadBalancer, err := loadbalancer.NewLoadBalancer(
 		cfg.LoadBalancer.Strategy,
 		registry,
 	)
@@ -60,24 +66,30 @@ func main() {
 		log.Fatalf("failed to create load balancer: %v", err)
 	}
 
-	//init proxy
-	proxy := proxy.New(loadBalancer)
+	// Init proxy.
+	proxy := proxy.New(
+		loadBalancer,
+		metricsCollector,
+	)
 
-	// init rate limiter
+	// Init rate limiter.
 	limiter := ratelimiter.New(
 		cfg.RateLimit.RequestsPerSecond,
 		cfg.RateLimit.Burst,
 	)
 
-	//init middleware
+	// Init middleware.
 	handler := middleware.Logging(
 		middleware.RateLimit(
 			limiter,
+			metricsCollector,
 			proxy,
-		))
+		),
+	)
 
-	//init server
+	// Init server.
 	srv := server.New(cfg, handler)
+
 	log.Printf("Starting Proxify on :%d...", cfg.Server.Port)
 
 	if err := srv.Start(); err != nil {

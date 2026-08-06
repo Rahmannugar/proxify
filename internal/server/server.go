@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rahmannugar/proxify/config"
+	"github.com/rahmannugar/proxify/internal/config"
 )
 
 const shutdownTimeout = 10 * time.Second

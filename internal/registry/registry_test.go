@@ -3,7 +3,7 @@ package registry
 import (
 	"testing"
 
-	"github.com/rahmannugar/proxify/config"
+	"github.com/rahmannugar/proxify/internal/config"
 )
 
 func TestRegistry_List_ReturnsConfiguredUpstreams(t *testing.T) {

@@ -5,12 +5,14 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/rahmannugar/proxify/ratelimiter"
+	"github.com/rahmannugar/proxify/internal/metrics"
+	"github.com/rahmannugar/proxify/internal/ratelimiter"
 )
 
 // RateLimit limits incoming requests on a per-client basis.
 func RateLimit(
 	limiter *ratelimiter.Limiter,
+	metrics *metrics.Metrics,
 	next http.Handler,
 ) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +20,7 @@ func RateLimit(
 		if err != nil {
 			http.Error(
 				w,
-				"Failed to determine client address.",
+				"failed to determine client address",
 				http.StatusInternalServerError,
 			)
 
@@ -26,6 +28,8 @@ func RateLimit(
 		}
 
 		if !limiter.Allow(clientIP) {
+			metrics.IncrementRateLimited()
+
 			log.Printf(
 				"Rate limit exceeded: client=%s",
 				clientIP,

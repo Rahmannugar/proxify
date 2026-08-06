@@ -3,8 +3,8 @@ package registry
 import (
 	"fmt"
 
-	"github.com/rahmannugar/proxify/config"
-	"github.com/rahmannugar/proxify/upstream"
+	"github.com/rahmannugar/proxify/internal/config"
+	"github.com/rahmannugar/proxify/internal/upstream"
 )
 
 // Registry manages the collection of configured upstreams.

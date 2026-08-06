@@ -3,14 +3,14 @@ package loadbalancer
 import (
 	"fmt"
 
-	"github.com/rahmannugar/proxify/config"
-	"github.com/rahmannugar/proxify/registry"
+	"github.com/rahmannugar/proxify/internal/config"
+	"github.com/rahmannugar/proxify/internal/registry"
 )
 
 /*
 Creates a load balancer for the configured strategy.
 */
-func NewLoadbalancer(
+func NewLoadBalancer(
 	strategy config.LoadBalancingStrategy,
 	registry *registry.Registry,
 ) (LoadBalancer, error) {

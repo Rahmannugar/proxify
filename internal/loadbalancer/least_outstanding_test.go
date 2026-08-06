@@ -3,8 +3,8 @@ package loadbalancer
 import (
 	"testing"
 
-	"github.com/rahmannugar/proxify/config"
-	"github.com/rahmannugar/proxify/registry"
+	"github.com/rahmannugar/proxify/internal/config"
+	"github.com/rahmannugar/proxify/internal/registry"
 )
 
 func TestLeastOutstanding_Next_ReturnsLeastBusyUpstream(t *testing.T) {

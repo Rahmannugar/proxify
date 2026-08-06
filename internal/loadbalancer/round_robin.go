@@ -3,8 +3,8 @@ package loadbalancer
 import (
 	"sync"
 
-	"github.com/rahmannugar/proxify/registry"
-	"github.com/rahmannugar/proxify/upstream"
+	"github.com/rahmannugar/proxify/internal/registry"
+	"github.com/rahmannugar/proxify/internal/upstream"
 )
 
 // RoundRobin distributes requests across upstreams.

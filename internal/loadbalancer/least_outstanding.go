@@ -3,8 +3,8 @@ package loadbalancer
 import (
 	"fmt"
 
-	"github.com/rahmannugar/proxify/registry"
-	"github.com/rahmannugar/proxify/upstream"
+	"github.com/rahmannugar/proxify/internal/registry"
+	"github.com/rahmannugar/proxify/internal/upstream"
 )
 
 // LeastOutstanding selects the upstream with the fewest active requests.

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/rahmannugar/proxify/config"
+	"github.com/rahmannugar/proxify/internal/config"
 )
 
 // Upstream represents a runtime upstream service.
