@@ -2,7 +2,7 @@ server:
   port: 8080
 
 loadBalancer:
-  strategy: round-robin
+  strategy: least-outstanding
 
 health:
   endpoint: /health

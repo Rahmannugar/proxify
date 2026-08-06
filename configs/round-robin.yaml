@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+loadBalancer:
+  strategy: round-robin
+
+health:
+  endpoint: /health
+  interval: 10s
+  timeout: 2s
+  retries: 3
+  expectedStatus: 200
+
+rateLimit:
+  requestsPerSecond: 10
+  burst: 20
+
+upstreams:
+  - id: api-1
+    url: http://localhost:9001
+
+  - id: api-2
+    url: http://localhost:9002

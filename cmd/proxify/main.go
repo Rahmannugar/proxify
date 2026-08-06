@@ -17,7 +17,7 @@ import (
 	"github.com/rahmannugar/proxify/internal/server"
 )
 
-const defaultConfigPath = "config.yaml"
+const defaultConfigPath = "configs/round-robin.yaml"
 
 func main() {
 	// Allow a custom configuration file to be supplied at startup.
