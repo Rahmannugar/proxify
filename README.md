@@ -25,7 +25,6 @@ Proxify is a reverse proxy written in Go that sits between clients and upstream 
 
 - Go
 - Docker
-- Docker Compose
 - YAML
 
 ## Running Locally
