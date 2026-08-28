@@ -62,6 +62,7 @@ func main() {
 		cfg.Health.Interval,
 		cfg.Health.Timeout,
 		cfg.Health.ExpectedStatus,
+		cfg.Health.Retries,
 	)
 
 	ctx, cancel := context.WithCancel(context.Background())

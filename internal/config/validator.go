@@ -44,6 +44,14 @@ func Validate(cfg *Config) error {
 		cfg.Health.ExpectedStatus = DefaultExpectedHealthStatus
 	}
 
+	if cfg.Transport.MaxIdleConns <= 0 {
+		cfg.Transport.MaxIdleConns = DefaultMaxIdleConns
+	}
+
+	if cfg.Transport.MaxIdleConnsPerHost <= 0 {
+		cfg.Transport.MaxIdleConnsPerHost = DefaultMaxIdleConnsPerHost
+	}
+
 	seen := make(map[string]struct{})
 
 	for _, upstream := range cfg.Upstreams {

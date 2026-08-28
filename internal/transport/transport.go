@@ -9,6 +9,16 @@ import (
 
 // New creates a shared HTTP transport for communicating with upstream services.
 func New(cfg config.TransportConfig) *http.Transport {
+	maxIdleConns := cfg.MaxIdleConns
+	if maxIdleConns <= 0 {
+		maxIdleConns = config.DefaultMaxIdleConns
+	}
+
+	maxIdleConnsPerHost := cfg.MaxIdleConnsPerHost
+	if maxIdleConnsPerHost <= 0 {
+		maxIdleConnsPerHost = config.DefaultMaxIdleConnsPerHost
+	}
+
 	return &http.Transport{
 		DialContext: (&net.Dialer{
 			Timeout: cfg.Dial,
@@ -18,7 +28,7 @@ func New(cfg config.TransportConfig) *http.Transport {
 		IdleConnTimeout:       cfg.IdleConn,
 		TLSHandshakeTimeout:   cfg.TLSHandshake,
 
-		MaxIdleConns:        100,
-		MaxIdleConnsPerHost: 10,
+		MaxIdleConns:        maxIdleConns,
+		MaxIdleConnsPerHost: maxIdleConnsPerHost,
 	}
 }

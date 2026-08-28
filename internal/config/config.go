@@ -54,6 +54,13 @@ const (
 	// DefaultCircuitBreakerSuccessThreshold is the number of successful
 	// requests required to close a half-open circuit breaker.
 	DefaultCircuitBreakerSuccessThreshold = 2
+
+	// DefaultMaxIdleConns is the maximum number of idle upstream connections.
+	DefaultMaxIdleConns = 1024
+
+	// DefaultMaxIdleConnsPerHost is the maximum number of idle connections
+	// retained for each upstream.
+	DefaultMaxIdleConnsPerHost = 256
 )
 
 // Config represents the root application configuration.
@@ -98,12 +105,14 @@ type TimeoutsConfig struct {
 	Idle       time.Duration `yaml:"idle"`
 }
 
-// TransportConfig defines timeout settings for upstream communication.
+// TransportConfig defines connection settings for upstream communication.
 type TransportConfig struct {
-	Dial           time.Duration `yaml:"dial"`
-	ResponseHeader time.Duration `yaml:"responseHeader"`
-	IdleConn       time.Duration `yaml:"idleConn"`
-	TLSHandshake   time.Duration `yaml:"tlsHandshake"`
+	Dial                time.Duration `yaml:"dial"`
+	ResponseHeader      time.Duration `yaml:"responseHeader"`
+	IdleConn            time.Duration `yaml:"idleConn"`
+	TLSHandshake        time.Duration `yaml:"tlsHandshake"`
+	MaxIdleConns        int           `yaml:"maxIdleConns"`
+	MaxIdleConnsPerHost int           `yaml:"maxIdleConnsPerHost"`
 }
 
 // CircuitBreakerConfig defines the circuit breaker configuration.

@@ -19,6 +19,8 @@ type Checker struct {
 	interval       time.Duration
 	endpoint       string
 	expectedStatus int
+	retries        int
+	failures       map[string]int
 }
 
 // New creates a new health checker.
@@ -29,6 +31,7 @@ func New(
 	interval time.Duration,
 	timeout time.Duration,
 	expectedStatus int,
+	retries int,
 ) *Checker {
 	return &Checker{
 		client: &http.Client{
@@ -39,6 +42,8 @@ func New(
 		interval:       interval,
 		endpoint:       endpoint,
 		expectedStatus: expectedStatus,
+		retries:        retries,
+		failures:       make(map[string]int),
 	}
 }
 
@@ -79,28 +84,38 @@ func (c *Checker) check() {
 func (c *Checker) checkUpstream(upstream *upstream.Upstream) bool {
 	resp, err := c.client.Get(upstream.URL + c.endpoint)
 	if err != nil {
-		upstream.SetHealthy(false)
-
-		log.Printf(
-			"Health check: %s healthy=%t",
-			upstream.ID,
-			upstream.IsHealthy(),
-		)
-
-		return false
+		return c.recordFailure(upstream)
 	}
 
 	defer resp.Body.Close()
 
-	healthy := resp.StatusCode == c.expectedStatus
+	if resp.StatusCode != c.expectedStatus {
+		return c.recordFailure(upstream)
+	}
 
-	upstream.SetHealthy(healthy)
+	c.failures[upstream.ID] = 0
+	upstream.SetHealthy(true)
+	c.logHealth(upstream)
 
+	return true
+}
+
+func (c *Checker) recordFailure(upstream *upstream.Upstream) bool {
+	c.failures[upstream.ID]++
+
+	if c.failures[upstream.ID] >= c.retries {
+		upstream.SetHealthy(false)
+	}
+
+	c.logHealth(upstream)
+
+	return upstream.IsHealthy()
+}
+
+func (c *Checker) logHealth(upstream *upstream.Upstream) {
 	log.Printf(
 		"Health check: %s healthy=%t",
 		upstream.ID,
 		upstream.IsHealthy(),
 	)
-
-	return healthy
 }

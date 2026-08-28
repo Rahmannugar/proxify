@@ -22,6 +22,8 @@ transport:
   responseHeader: 10s
   idleConn: 90s
   tlsHandshake: 5s
+  maxIdleConns: 1024
+  maxIdleConnsPerHost: 256
 
 rateLimit:
   requestsPerSecond: 10
