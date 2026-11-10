@@ -1,6 +1,8 @@
 # Proxify
 
-Proxify is a reverse proxy written in Go that sits between clients and upstream services. It forwards incoming HTTP requests while providing load balancing, health checks, circuit breaking, rate limiting, request logging, metrics, and graceful shutdown.
+Proxify is a Layer 7 (application-layer) HTTP load balancer and reverse proxy written in Go that sits between clients and upstream services. It selects an upstream for each incoming HTTP request using round-robin or least-outstanding load balancing, then forwards the request and response.
+
+Proxify operates at the HTTP request level and provides health checks, circuit breaking, rate limiting, request logging, metrics, and graceful shutdown.
 
 ## Features
 
